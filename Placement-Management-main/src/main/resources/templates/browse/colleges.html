@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div class="space-y-6" th:fragment="content">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold">Browse Colleges</h1>
+    <a href="/colleges/signup" class="text-sm px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg">+ Add College</a>
+  </div>
+
+  <div th:if="${#lists.isEmpty(colleges)}" class="p-4 bg-amber-50 text-amber-800 rounded-lg border">No colleges yet. Add one to get started.</div>
+
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" th:if="${!#lists.isEmpty(colleges)}">
+    <a th:each="c : ${colleges}" th:href="@{'/colleges/' + ${c.id}}" class="block bg-white rounded-2xl shadow-soft p-5 border hover:shadow-md transition">
+      <div class="font-semibold text-lg" th:text="${c.name}">College Name</div>
+      <div class="mt-1 text-sm text-slate-600" th:text="${#lists.size(c.departments)} + ' departments'">0 departments</div>
+    </a>
+  </div>
+</div>
+</body>
+</html>

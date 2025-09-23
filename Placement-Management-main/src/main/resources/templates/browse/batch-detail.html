@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div class="space-y-6" th:fragment="content">
+  <a th:href="@{'/departments/' + ${batch.department.id}}" class="text-sm text-slate-600 hover:text-brand-700">← Back to <span th:text="${batch.department.name}">Department</span></a>
+
+  <div class="bg-white rounded-2xl shadow-soft p-6">
+    <h1 class="text-2xl font-bold">Students
+      <span class="text-slate-500 text-base font-normal" th:text="'(' + ${batch.startYear} + ' - ' + ${batch.endYear} + ')'">(2023 - 2027)</span>
+    </h1>
+
+    <div th:if="${#lists.isEmpty(students)}" class="mt-4 p-3 bg-amber-50 text-amber-800 rounded border">No students registered in this batch.</div>
+
+    <div class="mt-4 overflow-x-auto" th:if="${!#lists.isEmpty(students)}">
+      <table class="min-w-full border rounded-xl overflow-hidden">
+        <thead class="bg-slate-100 text-left text-sm">
+          <tr>
+            <th class="p-3 border-b">Name</th>
+            <th class="p-3 border-b">Email</th>
+            <th class="p-3 border-b">Phone</th>
+            <th class="p-3 border-b">Graduation</th>
+            <th class="p-3 border-b">CGPA</th>
+            <th class="p-3 border-b">Skills</th>
+            <th class="p-3 border-b">Links</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="s : ${students}" class="odd:bg-white even:bg-slate-50">
+            <td class="p-3 border-b" th:text="${s.fullName}">Name</td>
+            <td class="p-3 border-b" th:text="${s.email}">Email</td>
+            <td class="p-3 border-b" th:text="${s.phone}">Phone</td>
+            <td class="p-3 border-b" th:text="${s.graduationYear}">2027</td>
+            <td class="p-3 border-b" th:text="${s.cgpa}">8.5</td>
+            <td class="p-3 border-b">
+              <div class="flex flex-wrap gap-1" th:if="${s.skills}">
+                <span class="px-2 py-0.5 rounded-full bg-slate-100 border text-slate-700 text-xs" th:each="sk : ${#strings.split(s.skills, ',')}" th:text="${#strings.trim(sk)}">Skill</span>
+              </div>
+            </td>
+            <td class="p-3 border-b text-sm">
+              <div class="flex gap-2">
+                <a th:if="${s.resumeUrl}" th:href="${s.resumeUrl}" class="text-indigo-600 hover:underline" target="_blank" rel="noopener">Resume</a>
+                <a th:if="${s.linkedinUrl}" th:href="${s.linkedinUrl}" class="text-sky-700 hover:underline" target="_blank" rel="noopener">LinkedIn</a>
+                <a th:if="${s.githubUrl}" th:href="${s.githubUrl}" class="text-slate-800 hover:underline" target="_blank" rel="noopener">GitHub</a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

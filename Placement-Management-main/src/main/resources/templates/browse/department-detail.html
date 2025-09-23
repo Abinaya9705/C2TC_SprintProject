@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div class="space-y-6" th:fragment="content">
+  <a th:href="@{'/colleges/' + ${department.college.id}}" class="text-sm text-slate-600 hover:text-brand-700">← Back to <span th:text="${department.college.name}">College</span></a>
+
+  <div class="bg-white rounded-2xl shadow-soft p-6">
+    <h1 class="text-2xl font-bold" th:text="${department.name}">Department</h1>
+    <p class="text-slate-600 mt-1">Batches</p>
+
+    <div th:if="${#lists.isEmpty(batches)}" class="mt-4 p-3 bg-amber-50 text-amber-800 rounded border">No batches found.</div>
+    <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-4" th:if="${!#lists.isEmpty(batches)}">
+      <a th:each="b : ${batches}" th:href="@{'/batches/' + ${b.id}}" class="block border rounded-xl p-4 hover:shadow-md bg-slate-50">
+        <div class="font-semibold" th:text="${b.startYear} + ' - ' + ${b.endYear}">2023 - 2027</div>
+      </a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

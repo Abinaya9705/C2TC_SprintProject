@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div class="space-y-6" th:fragment="content">
+  <div class="bg-white rounded-2xl shadow-soft p-6">
+    <h1 class="text-2xl font-bold mb-4">Register College</h1>
+    <p class="text-slate-600 mb-4">Add departments and batches to your college profile.</p>
+
+    <form id="collegeForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium">College Name</label>
+        <input type="text" id="collegeName" class="mt-1 w-full border rounded-lg p-2 focus:ring-2 focus:ring-brand-600" required/>
+      </div>
+
+      <div id="departments" class="space-y-4"></div>
+      <button type="button" onclick="addDepartment()" class="px-3 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg">+ Add Department</button>
+
+      <div>
+        <button type="submit" class="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg">Submit</button>
+      </div>
+    </form>
+
+    <div id="success" class="hidden mt-4 text-emerald-700">College created!</div>
+  </div>
+
+  <script>
+  // Keep scripts inside the content fragment so they are included by the layout
+  function addDepartment() {
+    const deptDiv = document.createElement('div');
+    deptDiv.className = 'dept border rounded-xl p-4 bg-slate-50';
+    deptDiv.innerHTML = `
+      <div class="flex justify-between items-center">
+        <h2 class="font-semibold">Department</h2>
+        <button type="button" class="text-red-600" onclick="this.closest('.dept').remove()">Remove</button>
+      </div>
+      <label class="block text-sm font-medium mt-2">Name</label>
+      <input type="text" class="mt-1 w-full border rounded-lg p-2" required/>
+      <div class="mt-3 space-y-2">
+        <div class="batches"></div>
+        <button type="button" class="px-2 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg" onclick="addBatch(this)">+ Add Batch</button>
+      </div>
+    `;
+    document.getElementById('departments').appendChild(deptDiv);
+  }
+
+  function addBatch(btn) {
+    const wrap = btn.parentElement.querySelector('.batches');
+    const batchDiv = document.createElement('div');
+    batchDiv.className = 'grid grid-cols-2 gap-4 items-end bg-white rounded-lg p-3 border';
+    batchDiv.innerHTML = `
+      <div>
+        <label class="block text-sm">Start Year</label>
+        <input type="number" class="border rounded-lg p-2 start" min="1900" max="3000" required>
+      </div>
+      <div>
+        <label class="block text-sm">End Year</label>
+        <input type="number" class="border rounded-lg p-2 end" min="1900" max="3000" required>
+      </div>
+      <div class="col-span-2 text-right">
+        <button type="button" class="text-red-600 text-sm" onclick="this.closest('div.grid').remove()">Remove</button>
+      </div>
+    `;
+    wrap.appendChild(batchDiv);
+  }
+
+  const form = document.getElementById('collegeForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = {
+      collegeName: document.getElementById('collegeName').value.trim(),
+      departments: Array.from(document.querySelectorAll('.dept')).map(d => ({
+        name: d.querySelector('input').value.trim(),
+        batches: Array.from(d.querySelectorAll('.batches > div')).map(b => ({
+          startYear: parseInt(b.querySelector('.start').value, 10),
+          endYear: parseInt(b.querySelector('.end').value, 10)
+        }))
+      }))
+    };
+
+    try {
+      const res = await fetch('/colleges', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (res.ok) {
+        // Redirect to browse list so the new college is visible
+        window.location.href = '/colleges';
+      } else {
+        alert('Failed to create college');
+      }
+    } catch (err) {
+      alert('Network error creating college');
+    }
+  });
+  </script>
+</div>
+</body>
+</html>

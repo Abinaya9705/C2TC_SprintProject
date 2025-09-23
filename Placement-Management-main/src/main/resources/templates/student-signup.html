@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout(~{::content})}">
+<body>
+<div class="space-y-6" th:fragment="content">
+  <div class="bg-white/90 backdrop-blur rounded-2xl shadow-soft p-6 border border-slate-200">
+    <h1 class="text-2xl font-bold mb-4">Student Signup</h1>
+    <p class="text-slate-600 mb-4">Tell us more about you and select your college, department and batch.</p>
+
+    <div th:if="${param.success}" class="mb-4 p-2 bg-emerald-50 text-emerald-700 rounded">Student registered!</div>
+
+    <form th:action="@{/students}" th:object="${student}" method="post" class="space-y-6">
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium">Full Name</label>
+          <input th:field="*{fullName}" class="mt-1 w-full border rounded-lg p-2 focus:ring-2 focus:ring-brand-600" required/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Email</label>
+          <input type="email" th:field="*{email}" class="mt-1 w-full border rounded-lg p-2 focus:ring-2 focus:ring-brand-600" required/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Phone</label>
+          <input th:field="*{phone}" class="mt-1 w-full border rounded-lg p-2" placeholder="e.g. +91 98765 43210" required/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Graduation Year</label>
+          <input type="number" th:field="*{graduationYear}" min="1900" max="3000" class="mt-1 w-full border rounded-lg p-2" placeholder="2027"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium">CGPA (0 - 10)</label>
+          <input type="number" step="0.01" min="0" max="10" th:field="*{cgpa}" class="mt-1 w-full border rounded-lg p-2" placeholder="8.50"/>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium">Address</label>
+          <textarea th:field="*{address}" rows="2" class="mt-1 w-full border rounded-lg p-2" placeholder="Street, City, State"></textarea>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium">College</label>
+          <select id="collegeSelect" th:field="*{college.id}" class="mt-1 w-full border rounded-lg p-2" required>
+            <option value="" disabled selected>Select college</option>
+            <option th:each="c : ${colleges}" th:value="${c.id}" th:text="${c.name}"></option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Department</label>
+          <select id="deptSelect" th:field="*{department.id}" class="mt-1 w-full border rounded-lg p-2" required>
+            <option value="" disabled selected>Select department</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Batch</label>
+          <select id="batchSelect" th:field="*{batch.id}" class="mt-1 w-full border rounded-lg p-2" required>
+            <option value="" disabled selected>Select batch</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-sm font-medium">Links</label>
+        <div class="grid md:grid-cols-3 gap-4">
+          <input th:field="*{resumeUrl}" class="mt-1 w-full border rounded-lg p-2" placeholder="Resume URL"/>
+          <input th:field="*{linkedinUrl}" class="mt-1 w-full border rounded-lg p-2" placeholder="LinkedIn URL"/>
+          <input th:field="*{githubUrl}" class="mt-1 w-full border rounded-lg p-2" placeholder="GitHub URL"/>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label class="block text-sm font-medium">Skills</label>
+        <div class="flex flex-wrap gap-2" id="skillChips"></div>
+        <div class="flex gap-2">
+          <input id="skillInput" type="text" class="flex-1 border rounded-lg p-2" placeholder="Type a skill and press Enter"/>
+          <button type="button" id="addSkillBtn" class="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg">Add</button>
+        </div>
+        <input type="hidden" th:field="*{skills}" id="skillsHidden"/>
+      </div>
+
+      <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg">Register</button>
+    </form>
+  </div>
+
+  <script>
+  const collegeSelect = document.getElementById('collegeSelect');
+  const deptSelect = document.getElementById('deptSelect');
+  const batchSelect = document.getElementById('batchSelect');
+
+  if (collegeSelect && deptSelect && batchSelect) {
+    collegeSelect.addEventListener('change', async () => {
+      const collegeId = collegeSelect.value;
+      deptSelect.innerHTML = '<option disabled selected>Loading...</option>';
+      batchSelect.innerHTML = '<option disabled selected>Select batch</option>';
+      try {
+        const res = await fetch(`/api/colleges/${collegeId}/departments`);
+        const depts = await res.json();
+        deptSelect.innerHTML = '<option disabled selected>Select department</option>' +
+          depts.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+      } catch (e) {
+        deptSelect.innerHTML = '<option disabled selected>Failed to load</option>';
+      }
+    });
+
+    deptSelect.addEventListener('change', async () => {
+      const deptId = deptSelect.value;
+      batchSelect.innerHTML = '<option disabled selected>Loading...</option>';
+      try {
+        const res = await fetch(`/api/departments/${deptId}/batches`);
+        const batches = await res.json();
+        batchSelect.innerHTML = '<option disabled selected>Select batch</option>' +
+          batches.map(b => `<option value="${b.id}">${b.startYear}-${b.endYear}</option>`).join('');
+      } catch (e) {
+        batchSelect.innerHTML = '<option disabled selected>Failed to load</option>';
+      }
+    });
+  }
+
+  // Simple skills chips manager storing CSV into hidden input
+  const skillsHidden = document.getElementById('skillsHidden');
+  const skillInput = document.getElementById('skillInput');
+  const addSkillBtn = document.getElementById('addSkillBtn');
+  const skillChips = document.getElementById('skillChips');
+
+  function renderSkills() {
+    const skills = (skillsHidden.value || '').split(',').filter(s => s.trim().length);
+    skillChips.innerHTML = skills.map((s, i) => `
+      <span class="inline-flex items-center gap-2 bg-slate-100 border border-slate-200 text-slate-700 px-3 py-1 rounded-full text-sm">
+        ${s}
+        <button type="button" data-index="${i}" class="text-slate-500 hover:text-red-600">×</button>
+      </span>
+    `).join('');
+  }
+
+  function addSkill() {
+    const v = (skillInput.value || '').trim();
+    if (!v) return;
+    const list = (skillsHidden.value ? skillsHidden.value.split(',') : []);
+    if (!list.includes(v)) list.push(v);
+    skillsHidden.value = list.join(',');
+    skillInput.value = '';
+    renderSkills();
+  }
+
+  addSkillBtn?.addEventListener('click', addSkill);
+  skillInput?.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addSkill(); } });
+  skillChips?.addEventListener('click', (e) => {
+    if (e.target.matches('button[data-index]')) {
+      const idx = parseInt(e.target.getAttribute('data-index'), 10);
+      const list = (skillsHidden.value ? skillsHidden.value.split(',') : []);
+      list.splice(idx, 1);
+      skillsHidden.value = list.join(',');
+      renderSkills();
+    }
+  });
+
+  renderSkills();
+  </script>
+</div>
+</body>
+</html>

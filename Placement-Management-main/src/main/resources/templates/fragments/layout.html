@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} ?: 'Placement Management'"></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: { 600: '#2563eb', 700: '#1d4ed8' },
+              surface: { DEFAULT: '#ffffff' },
+              outline: { DEFAULT: '#e5e7eb' }
+            },
+            boxShadow: {
+              soft: '0 10px 30px rgba(0,0,0,0.06)',
+              elevation: '0 8px 24px rgba(0,0,0,0.08)'
+            },
+            borderRadius: { xl: '0.75rem', '2xl': '1rem' }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+<header class="sticky top-0 z-10 backdrop-blur bg-white/80 border-b border-outline">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="/" class="font-bold text-xl text-brand-700">Placement</a>
+    <nav class="flex gap-1 text-sm">
+      <a href="/" class="px-3 py-2 rounded-lg hover:bg-slate-100">Home</a>
+      <a href="/students/signup" class="px-3 py-2 rounded-lg hover:bg-slate-100">Student Signup</a>
+      <a href="/colleges/signup" class="px-3 py-2 rounded-lg hover:bg-slate-100">College Signup</a>
+      <a href="/colleges" class="px-3 py-2 rounded-lg hover:bg-slate-100">Browse Colleges</a>
+    </nav>
+  </div>
+</header>
+<main class="max-w-6xl mx-auto p-4">
+  <div class="py-6" th:insert="${content}"></div>
+</main>
+<footer class="border-t border-outline">
+  <div class="max-w-6xl mx-auto px-4 py-6 text-xs text-slate-500">© Placement Management</div>
+</footer>
+</body>
+</html>
