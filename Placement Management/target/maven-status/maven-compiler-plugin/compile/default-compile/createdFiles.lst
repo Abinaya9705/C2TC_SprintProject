@@ -1,0 +1,5 @@
+com\placementmanagement\college\College.class
+com\placementmanagement\college\CollegeController.class
+com\placementmanagement\PlacementManagementApplication.class
+com\placementmanagement\college\CollegeRepository.class
+com\placementmanagement\college\CollegeService.class
