@@ -29,6 +29,10 @@ public class CollegeService {
         college.setAddress(collegeDetails.getAddress());
         college.setEmail(collegeDetails.getEmail());
         college.setPhone(collegeDetails.getPhone());
+        college.setaicte(collegeDetails.getaicte());
+        college.setrank(collegeDetails.getrank());
+        college.setcgtype(collegeDetails.getcgtype());
+        college.setwebsite(collegeDetails.getwebsite());
         return collegeRepository.save(college);
     }
 
